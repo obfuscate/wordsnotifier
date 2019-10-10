@@ -32,6 +32,7 @@ namespace ToastNotifications
             this.lifeTimer = new System.Windows.Forms.Timer(this.components);
             this.labelBody = new System.Windows.Forms.Label();
             this.labelTitle = new System.Windows.Forms.Label();
+            this.closeButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lifeTimer
@@ -50,7 +51,9 @@ namespace ToastNotifications
             this.labelBody.TabIndex = 0;
             this.labelBody.Text = "Body goes here and here and here and here and here";
             this.labelBody.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.labelBody.Click += new System.EventHandler(this.labelRO_Click);
+
+            this.labelBody.MouseEnter += new System.EventHandler(this.Notification_MouseEnter);
+            this.labelBody.MouseLeave += new System.EventHandler(this.Notification_MouseLeave);
             // 
             // labelTitle
             // 
@@ -59,10 +62,21 @@ namespace ToastNotifications
             this.labelTitle.ForeColor = System.Drawing.Color.Gainsboro;
             this.labelTitle.Location = new System.Drawing.Point(3, 1);
             this.labelTitle.Name = "labelTitle";
-            this.labelTitle.Size = new System.Drawing.Size(253, 21);
+            this.labelTitle.Size = new System.Drawing.Size(220, 21);
             this.labelTitle.TabIndex = 0;
             this.labelTitle.Text = "title goes here";
-            this.labelTitle.Click += new System.EventHandler(this.labelTitle_Click);
+            // 
+            // closeButton
+            // 
+            this.closeButton.BackColor = System.Drawing.Color.Transparent;
+            this.closeButton.Font = new System.Drawing.Font("Calibri", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.closeButton.ForeColor = System.Drawing.Color.LightGray;
+            this.closeButton.Location = new System.Drawing.Point(this.labelTitle.Size.Width + this.labelTitle.Location.X + 2, 1);
+            this.closeButton.Name = "closeButton";
+            this.closeButton.Size = new System.Drawing.Size(21, 21);
+            this.closeButton.TabIndex = 0;
+            this.closeButton.Text = "X";
+            this.closeButton.Click += new System.EventHandler(this.closeButton_Click);
             // 
             // Notification
             // 
@@ -75,6 +89,7 @@ namespace ToastNotifications
             this.ControlBox = false;
             this.Controls.Add(this.labelTitle);
             this.Controls.Add(this.labelBody);
+            this.Controls.Add(this.closeButton);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = WordsNotifier.Notification.this_Icon;
@@ -87,9 +102,8 @@ namespace ToastNotifications
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Notification_FormClosed);
             this.Load += new System.EventHandler(this.Notification_Load);
             this.Shown += new System.EventHandler(this.Notification_Shown);
-            this.Click += new System.EventHandler(this.Notification_Click);
-            this.ResumeLayout(false);
 
+            this.ResumeLayout(false);
         }
 
         #endregion
@@ -97,5 +111,6 @@ namespace ToastNotifications
         private System.Windows.Forms.Timer lifeTimer;
         private System.Windows.Forms.Label labelBody;
         private System.Windows.Forms.Label labelTitle;
+        private System.Windows.Forms.Button closeButton;
     }
 }

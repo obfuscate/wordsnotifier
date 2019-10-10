@@ -26,6 +26,8 @@ namespace ToastNotifications
         private Position _position;
         private IntPtr _currentForegroundWindow;
 
+        private WordsNotifier.Form1 _mainForm;
+
         /// <summary>
         /// 
         /// </summary>
@@ -34,7 +36,7 @@ namespace ToastNotifications
         /// <param name="duration"></param>
         /// <param name="animation"></param>
         /// <param name="direction"></param>
-        public Notification(string title, string body, int duration, FormAnimator.AnimationMethod animation, FormAnimator.AnimationDirection direction, Position position)
+        public Notification(WordsNotifier.Form1 form, string title, string body, int duration, FormAnimator.AnimationMethod animation, FormAnimator.AnimationDirection direction, Position position)
         {
             InitializeComponent();
 
@@ -52,6 +54,8 @@ namespace ToastNotifications
             _animator = new FormAnimator(this, animation, direction, 500);
 
             Region = Region.FromHrgn(NativeMethods.CreateRoundRectRgn(0, 0, Width - 5, Height - 5, 20, 20));
+
+            _mainForm = form;
         }
 
         #region Methods
@@ -157,19 +161,22 @@ namespace ToastNotifications
             Close();
         }
 
-        private void Notification_Click(object sender, EventArgs e)
+        private void closeButton_Click(object sender, EventArgs e)
         {
             Close();
+            _mainForm.StartShowTimer();
         }
 
-        private void labelTitle_Click(object sender, EventArgs e)
+        private void Notification_MouseEnter(object sender, EventArgs e)
         {
-            Close();
+            lifeTimer.Stop();
+            _mainForm.StopShowTimer();
         }
 
-        private void labelRO_Click(object sender, EventArgs e)
+        private void Notification_MouseLeave(object sender, EventArgs e)
         {
-            Close();
+            lifeTimer.Start();
+            _mainForm.StartShowTimer();
         }
 
         #endregion // Event Handlers
