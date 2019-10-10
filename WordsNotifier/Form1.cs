@@ -44,6 +44,10 @@ namespace WordsNotifier
 
         private bool mStopTimer;
 
+        public void StopShowTimer() { timerToShowWindow.Stop(); }
+
+        public void StartShowTimer() { timerToShowWindow.Start(); }
+
         public Form1()
         {
             InitializeComponent();
@@ -67,11 +71,13 @@ namespace WordsNotifier
             startToolStripMenuItem.Enabled = mStopTimer;
             stopToolStripMenuItem.Enabled = !mStopTimer;
         }
+
         private void StartToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mStopTimer = false;
             timerToShowWindow.Start();
         }
+
         private void StopToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mStopTimer = true;
@@ -109,6 +115,55 @@ namespace WordsNotifier
             }
         }
 
+        private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowWindow();
+        }
+
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            HideWindow();
+        }
+
+        private void BtnApply_Click(object sender, EventArgs e)
+        {
+            //--
+            mTimeToShow = int.Parse(txtTimeShow.Text);
+            mTimeToHide = int.Parse(txtTimeHide.Text);
+
+            //--
+            timerToShowWindow.Interval = mTimeToShow * 1000;
+
+            //--
+            HideWindow();
+        }
+
+        private void BtnOpenFie_Click(object sender, EventArgs e)
+        {
+            var dialog = new OpenFileDialog();
+            dialog.InitialDirectory = "C:\\";
+            dialog.Filter = "txt files (*.txt)|*.txt";
+            dialog.FilterIndex = 1;
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                mTextFile = dialog.FileName;
+                txtFile.Text = mTextFile;
+
+                Reload();
+            }
+        }
+
+        private void ReloadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Reload();
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Dump();
+        }
+
         private void TuneTimers()
         {
             if (this.WindowState == FormWindowState.Minimized)
@@ -125,7 +180,7 @@ namespace WordsNotifier
         {
             Word w = SelectWord();
 
-            ToastNotifications.Notification toastNotification = new ToastNotifications.Notification(w.word + (" [" + w.part + "]"), w.translation, mTimeToHide,
+            ToastNotifications.Notification toastNotification = new ToastNotifications.Notification(this, w.word + (" [" + w.part + "]"), w.translation, mTimeToHide,
                 ToastNotifications.FormAnimator.AnimationMethod.Center, ToastNotifications.FormAnimator.AnimationDirection.Up,
                 ToastNotifications.Position.VerticalTop | ToastNotifications.Position.HorizontalCenter);
             toastNotification.Show();
@@ -134,6 +189,11 @@ namespace WordsNotifier
         private Word SelectWord()
         {
             Debug.Assert(mPlainListWords.Count == mTranslations.Count);
+
+            if (mTranslations.Count == 0)
+            {
+                return new Word("nothing", "to do", "here");
+            }
 
             //--
             int idxWord = Convert.ToInt32(mTriangleDistr.NextDouble() * (mPlainListWords.Count - 1));
@@ -304,28 +364,6 @@ namespace WordsNotifier
             }
         }
 
-        private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ShowWindow();
-        }
-
-        private void BtnCancel_Click(object sender, EventArgs e)
-        {
-            HideWindow();
-        }
-
-        private void BtnApply_Click(object sender, EventArgs e)
-        {
-            //--
-            mTimeToShow = int.Parse(txtTimeShow.Text);
-            mTimeToHide = int.Parse(txtTimeHide.Text);
-
-            //--
-            timerToShowWindow.Interval = mTimeToShow * 1000;
-
-            //--
-            HideWindow();
-        }
         private void ShowWindow()
         {
             this.WindowState = FormWindowState.Normal;
@@ -335,35 +373,10 @@ namespace WordsNotifier
             txtTimeShow.Text = mTimeToShow.ToString();
             txtTimeHide.Text = mTimeToHide.ToString();
         }
+
         private void HideWindow()
         {
             this.WindowState = FormWindowState.Minimized;
-        }
-
-        private void BtnOpenFie_Click(object sender, EventArgs e)
-        {
-            var dialog = new OpenFileDialog();
-            dialog.InitialDirectory = "C:\\";
-            dialog.Filter = "txt files (*.txt)|*.txt";
-            dialog.FilterIndex = 1;
-
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                mTextFile = dialog.FileName;
-                txtFile.Text = mTextFile;
-
-                Reload();
-            }
-        }
-
-        private void ReloadToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Reload();
-        }
-
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            Dump();
         }
 
         private string exePath()
