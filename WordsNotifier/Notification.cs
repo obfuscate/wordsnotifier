@@ -171,6 +171,8 @@ namespace ToastNotifications
 
         private void Notification_FormClosed(object sender, FormClosedEventArgs e)
         {
+            _mainForm.TryToSort();
+
             // Move down any open forms above this one
             foreach (Notification openForm in OpenNotifications)
             {
@@ -214,7 +216,7 @@ namespace ToastNotifications
             if (_showFullWords)
             {
                 WordsNotifier.Word w = _mainForm.GetWord(false);
-                labelTitle.Text = w.word + "[" + w.part + "]";
+                labelTitle.Text = w.word;
 
                 ShowFullListWords();
             }

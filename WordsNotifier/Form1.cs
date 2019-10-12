@@ -53,6 +53,7 @@ namespace WordsNotifier
         private ContinuousUniformDistribution mContUniformDist;
         private Random mRnd;
         private int mCurrentWordIdx;
+        private int mCurrentTranslationIdx;
 
         private bool mStopTimer;
 
@@ -90,17 +91,35 @@ namespace WordsNotifier
 
             //--
             Translations translations = mTranslations[word];
-            translations.frequency++;
+            if (newWord)
+            {
+                translations.frequency++;
+            }
 
             //-- update the frequency in the plain list.
             mPlainListWords[mCurrentWordIdx] = new KeyValuePair<string, int>(word, translations.frequency);
 
             //--
-            int idxTranslation = mRnd.Next(0, translations.translations.Count - 1);
-            Translation t = translations.translations[idxTranslation];
-            t.frequency++;
+            if (newWord)
+            {
+                mCurrentTranslationIdx = mRnd.Next(0, translations.translations.Count - 1);
+            }
+            Translation t = translations.translations[mCurrentTranslationIdx];
+
+            if (newWord)
+            {
+                t.frequency++;
+            }
 
             return new Word(word + " " + mCurrentWordIdx.ToString(), t.part, t.translation);
+        }
+
+        public void TryToSort()
+        {
+            if (mContUniformDist.NextDouble() > 0.5)
+            {
+                SortWordsByFrequency();
+            }
         }
 
         public Form1()
@@ -165,11 +184,6 @@ namespace WordsNotifier
         private void TimerToShowWindow_Tick(object sender, EventArgs e)
         {
             ShowPopupWord();
-
-            if (mContUniformDist.NextDouble() > 0.5)
-            {
-                SortWordsByFrequency();
-            }
         }
 
         private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)
