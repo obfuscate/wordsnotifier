@@ -25,6 +25,7 @@ namespace ToastNotifications
         private readonly FormAnimator _animator;
         private Position _position;
         private IntPtr _currentForegroundWindow;
+        private IntPtr _hrgn;
 
         private WordsNotifier.Form1 _mainForm;
 
@@ -53,8 +54,8 @@ namespace ToastNotifications
 
             _animator = new FormAnimator(this, animation, direction, 500);
 
-            Region = Region.FromHrgn(NativeMethods.CreateRoundRectRgn(0, 0, Width - 5, Height - 5, 20, 20));
-
+            _hrgn = NativeMethods.CreateRoundRectRgn(0, 0, Width - 5, Height - 5, 20, 20);
+            Region = Region.FromHrgn(_hrgn);
             _mainForm = form;
         }
 
@@ -116,6 +117,8 @@ namespace ToastNotifications
                 openForm.Top -= Height;
             }
 
+            this.BackColor = _mainForm.GetBackgroundColor();
+
             OpenNotifications.Add(this);
             lifeTimer.Start();
         }
@@ -153,6 +156,7 @@ namespace ToastNotifications
                 openForm.Top += Height;
             }
 
+            Region.ReleaseHrgn(_hrgn);
             OpenNotifications.Remove(this);
         }
 
@@ -177,6 +181,46 @@ namespace ToastNotifications
         {
             lifeTimer.Start();
             _mainForm.StartShowTimer();
+        }
+
+        private void Notification_MouseClick(object sender, MouseEventArgs e)
+        {
+            WordsNotifier.Translations translations =_mainForm.GetAllTranslations();
+
+            //--
+            Dictionary<string, List<string>> partsToTrans = new Dictionary<string, List<string>>();
+            foreach (var t in translations.translations)
+            {
+                if (!partsToTrans.ContainsKey(t.part))
+                {
+                    partsToTrans[t.part] = new List<string>();
+                }
+                partsToTrans[t.part].Add(t.translation);
+            }
+
+            //--
+            labelBody.Text = "";
+            foreach (var part in partsToTrans)
+            {
+                labelBody.Text += "[" + part.Key + "]: " + Environment.NewLine;
+                foreach (var t in part.Value)
+                {
+                    labelBody.Text += "\t" + t + Environment.NewLine;
+                }
+            }
+
+            //--
+            int height = Math.Max(labelBody.Font.Height * (translations.translations.Count + partsToTrans.Count), labelBody.Size.Height) + 20;
+            this.labelBody.Size = new Size(this.labelBody.Size.Width, height);
+            this.labelBody.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            this.Size = new Size(this.Size.Width, this.labelTitle.Size.Height + this.labelBody.Size.Height);
+
+            //--
+            Region.ReleaseHrgn(_hrgn);
+            NativeMethods.DeleteObject(_hrgn);
+
+            _hrgn = NativeMethods.CreateRoundRectRgn(0, 0, Width - 5, Height - 5, 20, 20);
+            Region = Region.FromHrgn(_hrgn);
         }
 
         #endregion // Event Handlers
