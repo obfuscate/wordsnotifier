@@ -42,5 +42,18 @@ namespace ToastNotifications
             int nWidthEllipse, // width of ellipse
             int nHeightEllipse // height of ellipse
         );
+
+        [DllImport("Gdi32.dll", EntryPoint = "SetRectRgn")]
+        internal static extern bool SetRectRgn
+        (
+            IntPtr hrgn,
+            int left,
+            int top,
+            int right,
+            int bottom
+        );
+
+        [DllImport("Gdi32.dll", EntryPoint = "DeleteObject")]
+        internal static extern bool DeleteObject(IntPtr obj);
     }
 }

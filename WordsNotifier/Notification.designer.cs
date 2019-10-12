@@ -41,7 +41,7 @@ namespace ToastNotifications
             // 
             // labelBody
             // 
-            this.labelBody.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.labelBody.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
             this.labelBody.BackColor = System.Drawing.Color.Transparent;
             this.labelBody.Font = new System.Drawing.Font("Calibri", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelBody.ForeColor = System.Drawing.Color.White;
@@ -54,6 +54,7 @@ namespace ToastNotifications
 
             this.labelBody.MouseEnter += new System.EventHandler(this.Notification_MouseEnter);
             this.labelBody.MouseLeave += new System.EventHandler(this.Notification_MouseLeave);
+            this.labelBody.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Notification_MouseClick);
             // 
             // labelTitle
             // 
@@ -82,9 +83,7 @@ namespace ToastNotifications
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.White;
-            this.BackgroundImage = WordsNotifier.Notification.this_BackgroundImage;
-            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.BackColor = System.Drawing.Color.LightSkyBlue;
             this.ClientSize = new System.Drawing.Size(255, 80);
             this.ControlBox = false;
             this.Controls.Add(this.labelTitle);

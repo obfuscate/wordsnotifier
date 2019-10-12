@@ -25,11 +25,13 @@ namespace WordsNotifier
         private string mTextFile = @"unknown_words.txt";
         private int mTimeToShow = 10;
         private int mTimeToHide = 5;
+        private Color mColor = Color.Red;
 
         //--
         private static readonly string kFileHandleSettings = "file";
         private static readonly string kTimeToShowHandleSettings = "timeToShow";
         private static readonly string kTimeToHideHandleSettings = "timeToHide";
+        private static readonly string kBackgroundColorHandleSettings = "backgroundColor";
 
         //--
         private Words mTranslations;
@@ -41,12 +43,21 @@ namespace WordsNotifier
         private DiscreteUniformDistribution mUniformDistr;
         private ContinuousUniformDistribution mContUniformDist;
         private Random mRnd;
+        private int mCurrentWordIdx;
 
         private bool mStopTimer;
 
         public void StopShowTimer() { timerToShowWindow.Stop(); }
 
         public void StartShowTimer() { timerToShowWindow.Start(); }
+
+        public Translations GetAllTranslations()
+        {
+            string word = mPlainListWords[mCurrentWordIdx].Key;
+            return mTranslations[word];
+        }
+
+        public Color GetBackgroundColor() { return mColor; }
 
         public Form1()
         {
@@ -196,22 +207,22 @@ namespace WordsNotifier
             }
 
             //--
-            int idxWord = Convert.ToInt32(mTriangleDistr.NextDouble() * (mPlainListWords.Count - 1));
-            string word = mPlainListWords[idxWord].Key;
+            mCurrentWordIdx = Convert.ToInt32(mTriangleDistr.NextDouble() * (mPlainListWords.Count - 1));
+            string word = mPlainListWords[mCurrentWordIdx].Key;
 
             //--
             Translations translations = mTranslations[word];
             translations.frequency++;
 
             //-- update the frequency in the plain list.
-            mPlainListWords[idxWord] = new KeyValuePair<string, int>(word, translations.frequency);
+            mPlainListWords[mCurrentWordIdx] = new KeyValuePair<string, int>(word, translations.frequency);
 
             //--
             int idxTranslation = mRnd.Next(0, translations.translations.Count - 1);
             Translation t = translations.translations[idxTranslation];
             t.frequency++;
 
-            return new Word(word + " " + idxWord.ToString(), t.part, t.translation);
+            return new Word(word + " " + mCurrentWordIdx.ToString(), t.part, t.translation);
         }
 
         private void ReadWords()
@@ -330,6 +341,7 @@ namespace WordsNotifier
                 writer.WriteLine("{0} = {1}", kFileHandleSettings, mTextFile);
                 writer.WriteLine("{0} = {1}", kTimeToShowHandleSettings, mTimeToShow.ToString());
                 writer.WriteLine("{0} = {1}", kTimeToHideHandleSettings, mTimeToHide.ToString());
+                writer.WriteLine("{0} = {1}", kBackgroundColorHandleSettings, mColor.ToArgb());
             }
         }
 
@@ -359,6 +371,10 @@ namespace WordsNotifier
                         {
                             mTimeToHide = Convert.ToInt32(splits[1]);
                         }
+                        else if (splits[0] == kBackgroundColorHandleSettings)
+                        {
+                            mColor = Color.FromArgb(Convert.ToInt32(splits[1]));
+                        }
                     }
                 }
             }
@@ -372,6 +388,7 @@ namespace WordsNotifier
             txtFile.Text = mTextFile;
             txtTimeShow.Text = mTimeToShow.ToString();
             txtTimeHide.Text = mTimeToHide.ToString();
+            btnColor.BackColor = mColor;
         }
 
         private void HideWindow()
@@ -397,6 +414,15 @@ namespace WordsNotifier
         private void SortToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SortWordsByFrequency();
+        }
+
+        private void btnColor_Click(object sender, EventArgs e)
+        {
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
+            {
+                btnColor.BackColor = colorDialog1.Color;
+                mColor = colorDialog1.Color;
+            }
         }
     }
 }
