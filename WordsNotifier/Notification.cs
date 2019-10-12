@@ -26,8 +26,8 @@ namespace ToastNotifications
         private Position _position;
         private IntPtr _currentForegroundWindow;
         private IntPtr _hrgn;
-
         private WordsNotifier.Form1 _mainForm;
+        private bool _showFullWords;
 
         /// <summary>
         /// 
@@ -37,18 +37,45 @@ namespace ToastNotifications
         /// <param name="duration"></param>
         /// <param name="animation"></param>
         /// <param name="direction"></param>
-        public Notification(WordsNotifier.Form1 form, string title, string body, int duration, FormAnimator.AnimationMethod animation, FormAnimator.AnimationDirection direction, Position position)
+        public Notification(WordsNotifier.Form1 form, int duration, FormAnimator.AnimationMethod animation, FormAnimator.AnimationDirection direction, Position position)
         {
             InitializeComponent();
+
+            _mainForm = form;
 
             if (duration < 0)
                 duration = int.MaxValue;
             else
                 duration = duration * 1000;
 
+            WordsNotifier.Word w = _mainForm.GetWord(true);
+
+            switch (_mainForm.GetMode())
+            {
+                case WordsNotifier.Mode.Default:
+                {
+                        _showFullWords = true;
+                        labelTitle.Text = w.word + "[" + w.part + "]";
+                        labelBody.Text = w.translation;
+                        break;
+                }
+                case WordsNotifier.Mode.HideTranslation:
+                {
+                        _showFullWords = false;
+                        labelTitle.Text = w.word + "[" + w.part + "]";
+                        labelBody.Text = "[click to show translation]";
+                        break;
+                }
+                case WordsNotifier.Mode.Inverse:
+                {
+                        _showFullWords = false;
+                        labelTitle.Text = w.translation + "[" + w.part + "]";
+                        labelBody.Text = "[click to show the word]";
+                        break;
+                }
+            }
+
             lifeTimer.Interval = duration;
-            labelTitle.Text = title;
-            labelBody.Text = body;
 
             _position = position;
 
@@ -56,7 +83,6 @@ namespace ToastNotifications
 
             _hrgn = NativeMethods.CreateRoundRectRgn(0, 0, Width - 5, Height - 5, 20, 20);
             Region = Region.FromHrgn(_hrgn);
-            _mainForm = form;
         }
 
         #region Methods
@@ -185,7 +211,38 @@ namespace ToastNotifications
 
         private void Notification_MouseClick(object sender, MouseEventArgs e)
         {
-            WordsNotifier.Translations translations =_mainForm.GetAllTranslations();
+            if (_showFullWords)
+            {
+                WordsNotifier.Word w = _mainForm.GetWord(false);
+                labelTitle.Text = w.word + "[" + w.part + "]";
+
+                ShowFullListWords();
+            }
+            else
+            {
+                switch (_mainForm.GetMode())
+                {
+                    case WordsNotifier.Mode.HideTranslation:
+                        {
+                            WordsNotifier.Word w = _mainForm.GetWord(false);
+                            labelBody.Text = w.translation;
+                            _showFullWords = true;
+                            break;
+                        }
+                    case WordsNotifier.Mode.Inverse:
+                        {
+                            WordsNotifier.Word w = _mainForm.GetWord(false);
+                            labelBody.Text = w.word;
+                            _showFullWords = true;
+                            break;
+                        }
+                }
+            }
+        }
+
+        private void ShowFullListWords()
+        {
+            WordsNotifier.Translations translations = _mainForm.GetAllTranslations();
 
             //--
             Dictionary<string, List<string>> partsToTrans = new Dictionary<string, List<string>>();

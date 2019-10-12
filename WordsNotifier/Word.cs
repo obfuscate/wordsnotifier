@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace WordsNotifier
 {
-
     public class Translation
     {
         public Translation(string p, string t)
