@@ -19,6 +19,13 @@ namespace WordsNotifier
     using Words = Dictionary<string, Translations>;
     using PlainWords = List<KeyValuePair<string, int>>;
 
+    public enum Mode
+    {
+        Default = 0,
+        HideTranslation,
+        Inverse
+    }
+
     public partial class Form1 : Form
     {
         //-- Settings.
@@ -26,12 +33,14 @@ namespace WordsNotifier
         private int mTimeToShow = 10;
         private int mTimeToHide = 5;
         private Color mColor = Color.Red;
+        private Mode mMode = Mode.Default;
 
         //--
         private static readonly string kFileHandleSettings = "file";
         private static readonly string kTimeToShowHandleSettings = "timeToShow";
         private static readonly string kTimeToHideHandleSettings = "timeToHide";
         private static readonly string kBackgroundColorHandleSettings = "backgroundColor";
+        private static readonly string kModeHandleSettings = "mode";
 
         //--
         private Words mTranslations;
@@ -58,6 +67,41 @@ namespace WordsNotifier
         }
 
         public Color GetBackgroundColor() { return mColor; }
+
+        public Mode GetMode() { return mMode; }
+
+        public Word GetWord(bool newWord)
+        {
+            Debug.Assert(mPlainListWords.Count == mTranslations.Count);
+
+            if (mTranslations.Count == 0)
+            {
+                return new Word("nothing", "to do", "here");
+            }
+
+            //--
+            if (newWord)
+            {
+                mCurrentWordIdx = Convert.ToInt32(mTriangleDistr.NextDouble() * (mPlainListWords.Count - 1));
+            }
+
+            //--
+            string word = mPlainListWords[mCurrentWordIdx].Key;
+
+            //--
+            Translations translations = mTranslations[word];
+            translations.frequency++;
+
+            //-- update the frequency in the plain list.
+            mPlainListWords[mCurrentWordIdx] = new KeyValuePair<string, int>(word, translations.frequency);
+
+            //--
+            int idxTranslation = mRnd.Next(0, translations.translations.Count - 1);
+            Translation t = translations.translations[idxTranslation];
+            t.frequency++;
+
+            return new Word(word + " " + mCurrentWordIdx.ToString(), t.part, t.translation);
+        }
 
         public Form1()
         {
@@ -107,6 +151,8 @@ namespace WordsNotifier
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            cmbMode.DataSource = Enum.GetValues(typeof(Mode));
+
             LoadSettings();
             ReadWords();
             SetupDistribution();
@@ -189,40 +235,10 @@ namespace WordsNotifier
 
         private void ShowPopupWord()
         {
-            Word w = SelectWord();
-
-            ToastNotifications.Notification toastNotification = new ToastNotifications.Notification(this, w.word + (" [" + w.part + "]"), w.translation, mTimeToHide,
+            ToastNotifications.Notification toastNotification = new ToastNotifications.Notification(this, mTimeToHide,
                 ToastNotifications.FormAnimator.AnimationMethod.Center, ToastNotifications.FormAnimator.AnimationDirection.Up,
                 ToastNotifications.Position.VerticalTop | ToastNotifications.Position.HorizontalCenter);
             toastNotification.Show();
-        }
-
-        private Word SelectWord()
-        {
-            Debug.Assert(mPlainListWords.Count == mTranslations.Count);
-
-            if (mTranslations.Count == 0)
-            {
-                return new Word("nothing", "to do", "here");
-            }
-
-            //--
-            mCurrentWordIdx = Convert.ToInt32(mTriangleDistr.NextDouble() * (mPlainListWords.Count - 1));
-            string word = mPlainListWords[mCurrentWordIdx].Key;
-
-            //--
-            Translations translations = mTranslations[word];
-            translations.frequency++;
-
-            //-- update the frequency in the plain list.
-            mPlainListWords[mCurrentWordIdx] = new KeyValuePair<string, int>(word, translations.frequency);
-
-            //--
-            int idxTranslation = mRnd.Next(0, translations.translations.Count - 1);
-            Translation t = translations.translations[idxTranslation];
-            t.frequency++;
-
-            return new Word(word + " " + mCurrentWordIdx.ToString(), t.part, t.translation);
         }
 
         private void ReadWords()
@@ -342,6 +358,7 @@ namespace WordsNotifier
                 writer.WriteLine("{0} = {1}", kTimeToShowHandleSettings, mTimeToShow.ToString());
                 writer.WriteLine("{0} = {1}", kTimeToHideHandleSettings, mTimeToHide.ToString());
                 writer.WriteLine("{0} = {1}", kBackgroundColorHandleSettings, mColor.ToArgb());
+                writer.WriteLine("{0} = {1}", kModeHandleSettings, mMode);
             }
         }
 
@@ -359,6 +376,7 @@ namespace WordsNotifier
                         splits[0] = splits[0].Trim();
                         splits[1] = splits[1].Trim();
 
+                        //-- ToDo: Reconsider later.
                         if (splits[0] == kFileHandleSettings)
                         {
                             mTextFile = splits[1];
@@ -375,6 +393,10 @@ namespace WordsNotifier
                         {
                             mColor = Color.FromArgb(Convert.ToInt32(splits[1]));
                         }
+                        else if (splits[0] == kModeHandleSettings)
+                        {
+                            Enum.TryParse<Mode>(splits[1], out mMode);
+                        }
                     }
                 }
             }
@@ -389,6 +411,7 @@ namespace WordsNotifier
             txtTimeShow.Text = mTimeToShow.ToString();
             txtTimeHide.Text = mTimeToHide.ToString();
             btnColor.BackColor = mColor;
+            cmbMode.SelectedItem = mMode;
         }
 
         private void HideWindow()
@@ -423,6 +446,11 @@ namespace WordsNotifier
                 btnColor.BackColor = colorDialog1.Color;
                 mColor = colorDialog1.Color;
             }
+        }
+
+        private void cmbMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Enum.TryParse<Mode>(cmbMode.SelectedItem.ToString(), out mMode);
         }
     }
 }

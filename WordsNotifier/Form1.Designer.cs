@@ -50,7 +50,9 @@
             this.txtTimeHide = new System.Windows.Forms.TextBox();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.btnColor = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblBackground = new System.Windows.Forms.Label();
+            this.lblMode = new System.Windows.Forms.Label();
+            this.cmbMode = new System.Windows.Forms.ComboBox();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -212,21 +214,41 @@
             this.btnColor.UseVisualStyleBackColor = false;
             this.btnColor.Click += new System.EventHandler(this.btnColor_Click);
             // 
-            // label1
+            // lblBackground
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 107);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(91, 13);
-            this.label1.TabIndex = 11;
-            this.label1.Text = "Background color";
+            this.lblBackground.AutoSize = true;
+            this.lblBackground.Location = new System.Drawing.Point(12, 107);
+            this.lblBackground.Name = "lblBackground";
+            this.lblBackground.Size = new System.Drawing.Size(91, 13);
+            this.lblBackground.TabIndex = 11;
+            this.lblBackground.Text = "Background color";
+            // 
+            // lblMode
+            // 
+            this.lblMode.AutoSize = true;
+            this.lblMode.Location = new System.Drawing.Point(13, 134);
+            this.lblMode.Name = "lblMode";
+            this.lblMode.Size = new System.Drawing.Size(34, 13);
+            this.lblMode.TabIndex = 12;
+            this.lblMode.Text = "Mode";
+            // 
+            // cmbMode
+            // 
+            this.cmbMode.FormattingEnabled = true;
+            this.cmbMode.Location = new System.Drawing.Point(174, 131);
+            this.cmbMode.Name = "cmbMode";
+            this.cmbMode.Size = new System.Drawing.Size(121, 21);
+            this.cmbMode.TabIndex = 13;
+            this.cmbMode.SelectedIndexChanged += new System.EventHandler(this.cmbMode_SelectedIndexChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(629, 277);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.cmbMode);
+            this.Controls.Add(this.lblMode);
+            this.Controls.Add(this.lblBackground);
             this.Controls.Add(this.btnColor);
             this.Controls.Add(this.txtTimeHide);
             this.Controls.Add(this.txtTimeShow);
@@ -268,7 +290,9 @@
         private System.Windows.Forms.ToolStripMenuItem sortToolStripMenuItem;
         private System.Windows.Forms.ColorDialog colorDialog1;
         private System.Windows.Forms.Button btnColor;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblBackground;
+        private System.Windows.Forms.Label lblMode;
+        private System.Windows.Forms.ComboBox cmbMode;
     }
 }
 
